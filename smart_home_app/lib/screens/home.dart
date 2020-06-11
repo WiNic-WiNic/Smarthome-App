@@ -73,7 +73,3 @@ class HomePage extends StatelessWidget {
     );
   }
 }
-String checkState(int state){
-  if(state==1) return "ON";
-  else return "OFF";
-}

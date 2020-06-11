@@ -15,7 +15,45 @@ class RoomPage extends StatelessWidget {
       ),
       body: Container(
 
+        child: Column(
+          children: [
+            Container(
+              child: Text("Lights:"),
+            ),
+            Flexible(
+             child: ListView.builder(
+              itemCount: room.lightList.length,
+              itemBuilder: (BuildContext context, int index){
+                return ListTile(
+                  title: Text("Light "+room.lightList[index].id.toString()),
+                  subtitle: Text("Light is "+checkState(room.lightList[index])),
+                );
+              },
+            ),
+      ),
+            Container(
+              child: Text("Shutters:"),
+            ),
+            Flexible(
+            child: ListView.builder(
+              itemCount: room.shutterList.length,
+              itemBuilder: (BuildContext context, int index){
+                return ListTile(
+                  title: Text("Shutter "+room.shutterList[index].id.toString()),
+                  subtitle: Text("Light Test"),
+                );
+              },
+            ),
+            ),
+          ],
+
+        ),
       ),
     );
   }
+}
+
+String checkState(Light light){
+  if(light.state==1) return ("ON with "+light.dim.toString()+"%");
+  else return "OFF";
 }
