@@ -3,6 +3,7 @@ import 'package:smarthomeapp/screens/group.dart';
 import 'package:smarthomeapp/screens/weather.dart';
 import 'screens/home.dart';
 
+
 void main() {
   runApp(MyApp());
 }
@@ -40,16 +41,16 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Container(
         child: Align(
-          alignment: Alignment.center,
+      alignment: Alignment.center,
           child: Container(
-            padding: EdgeInsets.all(20.0),
+            padding:  EdgeInsets.all(20.0),
             //alignment: Alignment.center,
             color: Colors.blueAccent,
             //height: 200,
             //margin: EdgeInsets.only(top: 300.0),
             child: new Column(
-              children: <Widget>[
-                Container(
+            children: <Widget>[
+            Container(
                   width: double.infinity,
                   child: RaisedButton(
                     child: Text("Weather"),
@@ -57,8 +58,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     onPressed: () {
                       Navigator.push(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) => WeatherPage()));
+                          MaterialPageRoute(builder: (context)=> WeatherPage())
+                      );
                     },
                   ),
                 ),
@@ -68,8 +69,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: Text("Home"),
                     color: Colors.deepOrangeAccent,
                     onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => HomePage()));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context)=> HomePage())
+                      );
                     },
                   ),
                 ),
@@ -79,15 +82,17 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: Text("Group"),
                     color: Colors.deepPurpleAccent,
                     onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => GroupPage()));
-                    },
-                  ),
-                ),
-              ],
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context)=> GroupPage())
+                  );
+                },
+              ),
             ),
-          ),
+          ],
         ),
+      ),
+      ),
       ),
     );
   }
