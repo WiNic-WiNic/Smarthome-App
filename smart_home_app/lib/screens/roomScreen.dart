@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../klassen.dart';
+//import '../klassen.dart';
+import '../autoClassgenerator.dart';
 
 class RoomPage extends StatelessWidget {
 
@@ -11,7 +12,7 @@ class RoomPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(room.name+" Page"),
+        title: Text(room.roomname+" Page"),
       ),
       body: Container(
 
@@ -59,7 +60,7 @@ class RoomPage extends StatelessWidget {
   }
 }
 
-String checkState(Light light){
+String checkState(LightList light){
   if(light.state==1) return ("ON with "+light.dim.toString()+"%");
   else return "OFF";
 }

@@ -1,67 +1,15 @@
 // To parse this JSON data, do
 //
-//     final home = homeFromJson(jsonString);
+//     final room = roomFromJson(jsonString);
 
 import 'dart:convert';
 
-Home homeFromJson(String str) => Home.fromJson(json.decode(str));
+List<Room> roomFromJson(String str) => List<Room>.from(json.decode(str).map((x) => Room.fromJson(x)));
 
-String homeToJson(Home data) => json.encode(data.toJson());
+String roomToJson(List<Room> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
-class Home {
-  Home({
-    this.roomList,
-    this.groupList,
-  });
-
-  List<RoomList> roomList;
-  List<GroupListElement> groupList;
-
-  factory Home.fromJson(Map<String, dynamic> json) => Home(
-    roomList: List<RoomList>.from(json["roomList"].map((x) => RoomList.fromJson(x))),
-    groupList: List<GroupListElement>.from(json["groupList"].map((x) => GroupListElement.fromJson(x))),
-  );
-
-  Map<String, dynamic> toJson() => {
-    "roomList": List<dynamic>.from(roomList.map((x) => x.toJson())),
-    "groupList": List<dynamic>.from(groupList.map((x) => x.toJson())),
-  };
-}
-
-class GroupListElement {
-  GroupListElement({
-    this.name,
-    this.id,
-    this.state,
-    this.dim,
-    this.grpId,
-  });
-
-  String name;
-  int id;
-  int state;
-  int dim;
-  List<int> grpId;
-
-  factory GroupListElement.fromJson(Map<String, dynamic> json) => GroupListElement(
-    name: json["name"] == null ? null : json["name"],
-    id: json["id"],
-    state: json["state"],
-    dim: json["dim"],
-    grpId: json["grp_id"] == null ? null : List<int>.from(json["grp_id"].map((x) => x)),
-  );
-
-  Map<String, dynamic> toJson() => {
-    "name": name == null ? null : name,
-    "id": id,
-    "state": state,
-    "dim": dim,
-    "grp_id": grpId == null ? null : List<dynamic>.from(grpId.map((x) => x)),
-  };
-}
-
-class RoomList {
-  RoomList({
+class Room {
+  Room({
     this.roomname,
     this.shutterList,
     this.lightList,
@@ -69,18 +17,46 @@ class RoomList {
 
   String roomname;
   List<ShutterList> shutterList;
-  List<GroupListElement> lightList;
+  List<LightList> lightList;
 
-  factory RoomList.fromJson(Map<String, dynamic> json) => RoomList(
+  factory Room.fromJson(Map<String, dynamic> json) => Room(
     roomname: json["roomname"],
     shutterList: List<ShutterList>.from(json["shutterList"].map((x) => ShutterList.fromJson(x))),
-    lightList: List<GroupListElement>.from(json["lightList"].map((x) => GroupListElement.fromJson(x))),
+    lightList: List<LightList>.from(json["lightList"].map((x) => LightList.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
     "roomname": roomname,
     "shutterList": List<dynamic>.from(shutterList.map((x) => x.toJson())),
     "lightList": List<dynamic>.from(lightList.map((x) => x.toJson())),
+  };
+}
+
+class LightList {
+  LightList({
+    this.id,
+    this.state,
+    this.dim,
+    this.grpId,
+  });
+
+  int id;
+  int state;
+  int dim;
+  List<int> grpId;
+
+  factory LightList.fromJson(Map<String, dynamic> json) => LightList(
+    id: json["id"],
+    state: json["state"],
+    dim: json["dim"],
+    grpId: List<int>.from(json["grp_id"].map((x) => x)),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "state": state,
+    "dim": dim,
+    "grp_id": List<dynamic>.from(grpId.map((x) => x)),
   };
 }
 
