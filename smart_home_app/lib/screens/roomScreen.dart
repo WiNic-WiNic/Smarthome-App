@@ -27,6 +27,9 @@ class RoomPage extends StatelessWidget {
                 return ListTile(
                   title: Text("Light "+room.lightList[index].id.toString()),
                   subtitle: Text("Light is "+checkState(room.lightList[index])),
+                  onTap: (){
+                    print(checkState(room.lightList[index]));
+                  },
                 );
               },
             ),
@@ -41,6 +44,9 @@ class RoomPage extends StatelessWidget {
                 return ListTile(
                   title: Text("Shutter "+room.shutterList[index].id.toString()),
                   subtitle: Text("Light Test"),
+                  onTap: (){
+
+                  },
                 );
               },
             ),
