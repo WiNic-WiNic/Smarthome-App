@@ -15,6 +15,9 @@ class HomePage extends StatefulWidget {
 print("initialised");
   }
 
+ final String basicApiUrl = "https://myveryfirstsmarthomeapi.azurewebsites.net/api/home/";
+ String getAPI(){return basicApiUrl;}
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -23,14 +26,12 @@ print("initialised");
 
 class _HomePageState extends State<HomePage> {
 
-
-  final String basicApiUrl =
-      "https://myveryfirstsmarthomeapi.azurewebsites.net/api/home/";
+  final HomePage home = new HomePage();
 
   //gets data from url
   Future<List<Room>> _getRooms() async {
     print("hey");
-    final data = await http.get(basicApiUrl+"location");
+    final data = await http.get(home.getAPI()+"location");
     print("downloaded");
     //convert data
     List<Room> rooms = parseRooms(data.body);
@@ -54,7 +55,7 @@ class _HomePageState extends State<HomePage> {
     room.lightList = List<LightList>();
     final String requestBody = jsonEncode(room);
     print("Body: " + requestBody);
-    final response = await http.post(basicApiUrl+"location",
+    final response = await http.post(home.getAPI()+"location",
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -71,7 +72,7 @@ return null;
   }
 
   Future<Null> deleteRoom(String roomname) async{
-    http.delete(basicApiUrl+"location/"+roomname);
+    http.delete(home.getAPI()+"location/"+roomname);
     myRefresh();
     return null;
   }
@@ -79,7 +80,7 @@ return null;
   Future<Null> editRoomname(String oldroomname,String newroomname) async {
 
 
-    final response = await http.put(basicApiUrl+"location/"+oldroomname,
+    final response = await http.put(home.getAPI()+"location/"+oldroomname,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
