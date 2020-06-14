@@ -10,6 +10,11 @@ import 'roomScreen.dart';
 
 class HomePage extends StatefulWidget {
 
+  @protected
+  void initState() {
+print("initialised");
+  }
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -147,6 +152,7 @@ Future<String> createPopUp(BuildContext context)async{
                 if (snapshot.data == null) {
                   return Container(
                       child: Center(child: Text('No Data available')));
+
                 } else {
                   return RefreshIndicator(
                       child: ListView.builder(
