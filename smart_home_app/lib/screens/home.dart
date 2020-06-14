@@ -70,7 +70,11 @@ class _HomePageState extends State<HomePage> {
 return null;
   }
 
- // Future<Room> deleteRoom(String roomname) async
+  Future<Room> deleteRoom(String roomname) async{
+    http.delete(basicApiUrl+"location/"+roomname);
+    myRefresh();
+    return null;
+  }
 
 Future<String> createPopUp(BuildContext context)async{
 
@@ -108,43 +112,6 @@ Future<String> createPopUp(BuildContext context)async{
           print('pressed Add-Button');
         },
       ),
-
-
-
-
-      /*SpeedDial(
-        animatedIcon: AnimatedIcons.menu_close,
-        children: [
-          SpeedDialChild(
-              child: Icon(Icons.delete),
-              backgroundColor: Colors.red,
-              label: 'Delete',
-              labelStyle: TextStyle(fontSize: 18.0),
-              onTap: () {
-                print('Delete');
-              }),
-          SpeedDialChild(
-            child: Icon(Icons.border_color),
-            backgroundColor: Colors.blue,
-            label: 'Change',
-            labelStyle: TextStyle(fontSize: 18.0),
-            onTap: () => print('Change'),
-          ),
-          SpeedDialChild(
-              child: Icon(Icons.add_to_photos),
-              backgroundColor: Colors.green,
-              label: 'Add',
-              labelStyle: TextStyle(fontSize: 18.0),
-              onTap: () async {
-                createPopUp(context).then((getString){
-                  if(getString !=null) createRoom(getString);
-                });
-               //
-
-                print('Add');
-              }),
-        ],
-      ),*/
       appBar: AppBar(
         title: Text("Home Page"),
       ),
@@ -180,6 +147,23 @@ Future<String> createPopUp(BuildContext context)async{
                                 ", Shutters; " +
                                 snapshot.data[index].shutterList.length
                                     .toString()),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                            IconButton(
+                            icon: Icon(Icons.edit),
+                            onPressed: (){print("edited"+snapshot.data[index].roomname);
+                              },
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: (){
+                                deleteRoom(snapshot.data[index].roomname);
+                                print("deleted");
+                                  },
+                                ),
+                              ],
+                            ),
                             onTap: () {
                               Navigator.push(
                                   context,
