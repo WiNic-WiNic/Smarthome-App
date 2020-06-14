@@ -25,12 +25,12 @@ class _HomePageState extends State<HomePage> {
 
 
   final String basicApiUrl =
-      "https://myveryfirstsmarthomeapi.azurewebsites.net/api/home/location";
+      "https://myveryfirstsmarthomeapi.azurewebsites.net/api/home/";
 
   //gets data from url
   Future<List<Room>> _getRooms() async {
     print("hey");
-    final data = await http.get(basicApiUrl);
+    final data = await http.get(basicApiUrl+"location");
     print("downloaded");
     //convert data
     List<Room> rooms = parseRooms(data.body);
@@ -54,7 +54,7 @@ class _HomePageState extends State<HomePage> {
     room.lightList = List<LightList>();
     final String requestBody = jsonEncode(room);
     print("Body: " + requestBody);
-    final response = await http.post(basicApiUrl,
+    final response = await http.post(basicApiUrl+"location",
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -70,6 +70,7 @@ class _HomePageState extends State<HomePage> {
 return null;
   }
 
+ // Future<Room> deleteRoom(String roomname) async
 
 Future<String> createPopUp(BuildContext context)async{
 
@@ -98,7 +99,20 @@ Future<String> createPopUp(BuildContext context)async{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: SpeedDial(
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add_to_photos),
+        onPressed: (){
+          createPopUp(context).then((getString){
+            if(getString !=null) createRoom(getString);
+          });
+          print('pressed Add-Button');
+        },
+      ),
+
+
+
+
+      /*SpeedDial(
         animatedIcon: AnimatedIcons.menu_close,
         children: [
           SpeedDialChild(
@@ -130,7 +144,7 @@ Future<String> createPopUp(BuildContext context)async{
                 print('Add');
               }),
         ],
-      ),
+      ),*/
       appBar: AppBar(
         title: Text("Home Page"),
       ),

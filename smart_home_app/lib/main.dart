@@ -33,27 +33,30 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
+  double space =20;
+  double schriftG=30;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Container(
-        child: Align(
-      alignment: Alignment.center,
-          child: Container(
-            padding:  EdgeInsets.all(20.0),
-            //alignment: Alignment.center,
+      body:  Container(
             color: Colors.blueAccent,
-            //height: 200,
-            //margin: EdgeInsets.only(top: 300.0),
-            child: new Column(
+            padding:  EdgeInsets.all(20.0),
+            child: Column(
+
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+               crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-            Container(
-                  width: double.infinity,
+
+            Expanded(
                   child: RaisedButton(
-                    child: Text("Weather"),
+                    child: Text("Weather",
+                      style: TextStyle(fontSize: schriftG),
+                    ),
                     color: Colors.amberAccent,
                     onPressed: () {
                       Navigator.push(
@@ -63,10 +66,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     },
                   ),
                 ),
-                Container(
-                  width: double.infinity,
+              SizedBox(height: space,
+              ),
+              Expanded(
+
                   child: RaisedButton(
-                    child: Text("Home"),
+                    child: Text("Home",
+                      style: TextStyle(fontSize: schriftG),
+                    ),
                     color: Colors.deepOrangeAccent,
                     onPressed: () {
                       Navigator.push(
@@ -76,10 +83,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     },
                   ),
                 ),
-                Container(
-                  width: double.infinity,
+              SizedBox(height: space,
+              ),
+              Expanded(
+
                   child: RaisedButton(
-                    child: Text("Group"),
+                    child: Text("Group",
+                      style: TextStyle(fontSize: schriftG),
+                    ),
                     color: Colors.deepPurpleAccent,
                     onPressed: () {
                       Navigator.push(
@@ -92,8 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      ),
-      ),
-    );
+      );
+
   }
 }
