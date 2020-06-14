@@ -46,7 +46,7 @@ class _HomePageState extends State<HomePage> {
     return rooms;
   }
 
-  Future<Room> createRoom(String roomname) async {
+  Future<Null> createRoom(String roomname) async {
     print("hey");
     Room room = new Room();
     room.roomname = roomname;
@@ -70,13 +70,28 @@ class _HomePageState extends State<HomePage> {
 return null;
   }
 
-  Future<Room> deleteRoom(String roomname) async{
+  Future<Null> deleteRoom(String roomname) async{
     http.delete(basicApiUrl+"location/"+roomname);
     myRefresh();
     return null;
   }
 
-Future<String> createPopUp(BuildContext context)async{
+  Future<Null> editRoomname(String oldroomname,String newroomname) async {
+
+
+    final response = await http.put(basicApiUrl+"location/"+oldroomname,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: '"'+newroomname+'"'
+    );
+    print("uploaded Status: " + response.statusCode.toString());
+    myRefresh();
+    return null;
+  }
+
+
+Future<String> createaddPopUp(BuildContext context)async{
 
     TextEditingController myController = TextEditingController();
 
@@ -99,6 +114,28 @@ Future<String> createPopUp(BuildContext context)async{
     });
 }
 
+  Future<String> createeditPopUp(BuildContext context)async{
+
+    TextEditingController myController = TextEditingController();
+
+    return showDialog(context: context,builder: (context){
+      return AlertDialog(
+        title: Text("Pls enter new Roomname"),
+        content: TextField(
+          controller: myController,
+        ),
+        actions: <Widget>[
+          MaterialButton(
+            elevation: 5.0,
+            child: Text("Submit name"),
+            onPressed: (){
+              Navigator.of(context).pop(myController.text.toString());
+            },
+          )
+        ],
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +143,7 @@ Future<String> createPopUp(BuildContext context)async{
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add_to_photos),
         onPressed: (){
-          createPopUp(context).then((getString){
+          createaddPopUp(context).then((getString){
             if(getString !=null) createRoom(getString);
           });
           print('pressed Add-Button');
@@ -152,9 +189,17 @@ Future<String> createPopUp(BuildContext context)async{
                               children: <Widget>[
                             IconButton(
                             icon: Icon(Icons.edit),
-                            onPressed: (){print("edited"+snapshot.data[index].roomname);
-                              },
+                            onPressed: (){
+                              createeditPopUp(context).then((getString){
+                              if(getString !=null) {
+                                editRoomname(snapshot.data[index].roomname,
+                                     getString);
+                              }
+                              print("edited");
+                              },);
+                            },
                             ),
+
                             IconButton(
                               icon: Icon(Icons.delete),
                               onPressed: (){
