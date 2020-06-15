@@ -7,13 +7,28 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import '../autoClassgenerator.dart';
 import 'home.dart';
 
-class RoomPage extends StatelessWidget {
+class RoomPage extends StatefulWidget {
+
+  final Room rooms;
+
+  RoomPage(this.rooms);
+
+
+  @override
+  _RoomPageState createState() => _RoomPageState(rooms);
+}
+
+
+
+class _RoomPageState extends State<RoomPage> {
 
   final HomePage home = new HomePage();
-  final Room room;
+   Room room;
+  _RoomPageState(this.room);
+
   Color _iconColor = Colors.white;
 
-  RoomPage(this.room);
+
 
     Widget build(BuildContext context) {
     return Scaffold(
@@ -38,13 +53,7 @@ class RoomPage extends StatelessWidget {
                   createLight(lightItem);
                 }
                 });
-
-                /*
-                createPopUp(context).then((getString){
-                  if(getString !=null) createRoom(getString);
-                });
-               //
-*/            home.getAPI();
+                refreshLights();
                 print('Light added');
               }),
         ],
@@ -64,49 +73,52 @@ class RoomPage extends StatelessWidget {
 
 
             Flexible(
-             child: ListView.builder(
-              itemCount: room.lightList.length,
-              itemBuilder: (BuildContext context, int index){
-                String allGrpIDs = room.lightList[index].grpId.join(", ");
-                return ListTile(
-                  title: Text("Light "+room.lightList[index].id.toString()),
-                  subtitle: Text("Light is "+checkState(room.lightList[index])+
-                      "\n Group IDs: "+allGrpIDs),
-                  isThreeLine: true,
-                  dense: true,
-                  leading: Icon(
-                    Icons.lightbulb_outline,
-                    color:  _iconColor,
-                  ),
-                  onTap: (){
-                    print(checkState(room.lightList[index]));
-                  },
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      IconButton(
-                        icon: Icon(Icons.edit),
-                        onPressed: (){
-                          createLightPopUp(context,room.lightList[index].id).then((lightItem){
-                            if(lightItem !=null) {
-                              editLight(lightItem);
-                            }
-                          });
-                        },
-                      ),
 
-                      IconButton(
-                        icon: Icon(Icons.delete),
-                        onPressed: (){
-                          deleteLight(room.lightList[index].id);
-                        },
-                      ),
-                    ],
-                  ),
+             child: RefreshIndicator(child:   ListView.builder(
+               itemCount: room.lightList.length,
+               itemBuilder: (BuildContext context, int index){
+                 String allGrpIDs = room.lightList[index].grpId.join(", ");
+                 return ListTile(
+                   title: Text("Light "+room.lightList[index].id.toString()),
+                   subtitle: Text("Light is "+checkState(room.lightList[index])+
+                       "\n Group IDs: "+allGrpIDs),
+                   isThreeLine: true,
+                   dense: true,
+                   leading: Icon(
+                     Icons.lightbulb_outline,
+                     color:  _iconColor,
+                   ),
+                   onTap: (){
+                     onTapLight(room.lightList[index]);
+                     print(checkState(room.lightList[index]));
+                   },
+                   trailing: Row(
+                     mainAxisSize: MainAxisSize.min,
+                     children: <Widget>[
+                       IconButton(
+                         icon: Icon(Icons.edit),
+                         onPressed: (){
+                           createLightPopUp(context,room.lightList[index].id).then((lightItem){
+                             if(lightItem !=null) {
+                               editLight(lightItem);
+                             }
+                           });
+                         },
+                       ),
 
-                );
-              },
-            ),
+                       IconButton(
+                         icon: Icon(Icons.delete),
+                         onPressed: (){
+                           deleteLight(room.lightList[index].id);
+                         },
+                       ),
+                     ],
+                   ),
+
+                 );
+               },
+             ),
+                 onRefresh: refreshLights)
       ),
 
             Container(
@@ -147,11 +159,34 @@ class RoomPage extends StatelessWidget {
     );
   }
 
+  Future<List<LightList>> _getLights(Room room) async {
+    print("hey");
+    final data = await http.get(home.getAPI()+"location/"+room.roomname);
+    print("downloaded lights");
+    //convert data
+    List<LightList> lights = parseLights(data.body);
+
+    return lights;
+  }
+
+  List<LightList> parseLights(String dataBody) {
+    final parsed = json.decode(dataBody);
+     Room room = Room.fromJson(parsed);
+    List<LightList> lights = room.lightList;
+    return lights;
+  }
+
+  Future<Null> refreshLights() async {
+      room.lightList = await _getLights(room);
+      setState(() {});
+  }
+
+
   Future<Null> deleteLight(int lightID) async {
     print("inside delete light");
  final response = await http.delete(home.getAPI()+"light/"+room.roomname+"/"+lightID.toString());
     print("uploaded Status: " + response.statusCode.toString());
-    // myRefresh();
+    refreshLights();
     return null;
   }
 
@@ -166,7 +201,7 @@ class RoomPage extends StatelessWidget {
         body: requestBody
     );
     print("uploaded Status: " + response.statusCode.toString());
-   // myRefresh();
+   refreshLights();
     return null;
   }
 //todo: only change brightness and groupids
@@ -181,9 +216,17 @@ class RoomPage extends StatelessWidget {
         body: requestBody
     );
     print("uploaded Status: " + response.statusCode.toString());
-    // myRefresh();
+    refreshLights();
     return null;
   }
+
+  Future<Null> onTapLight(LightList light) async {
+      if(light.state==1) light.state=0;
+      else light.state=1;
+      editLight(light);
+      return null;
+  }
+
 
 LightList demoLightInit(){
       LightList light =new LightList();
@@ -197,51 +240,129 @@ LightList demoLightInit(){
 //gives light item back
   Future<LightList> createLightPopUp(BuildContext context,int lightid)async{
 
-    TextEditingController id = TextEditingController();
-    TextEditingController state = TextEditingController();
-    TextEditingController dim = TextEditingController();
+    TextEditingController string_grpID = TextEditingController();
+    List<bool> _selections = List.generate(1, (_) => false);
+    String state="OFF";
+    int state_int;
+    double brightness=50;
+
+    List<int> grpID=[1,2,3,4];
 
     LightList light = new LightList();
 
     return showDialog(context: context,builder: (context){
       return AlertDialog(
         title: Text("Pls enter Light "),
-        content: ListView(
-          //mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
+        content: StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState){
+            return ListView(
+              //mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Container(
+                  child: Text("Light state:"),
+                ),
+                //todo: on/off
+                Row(
+                  children: <Widget>[
+                    ToggleButtons(
+                      children: <Widget>[
+                        Icon(Icons.lightbulb_outline)
+                      ],
+                      isSelected: _selections,
+                      onPressed: (int index){
+                        setState(() {
+                          _selections[index] = !_selections[index];
+                          if (_selections[index]){
+                            state = "ON";
+                            state_int = 1;
+                        }
+                          else {
+                            state = "OFF";
+                            state_int = 0;
+                          }
+                        });
+                      },
+                      color: Colors.grey,
+                      selectedColor: Colors.amber,
+                    ),
+                    Container(
+                      child: Text(state),
+                    )
+                  ],
+                ),
+
+                Container(
+                  child: Text("Light brightness: "+ brightness.toInt().toString()),
+                ),
+                Slider(
+                  //todo: does not update
+                  value: brightness,
+                  min: 0,
+                  max: 100,
+                  divisions:100,
+                  label: brightness.toInt().toString(),
+                  onChanged: (newBrightness){
+                    setState(()=>brightness = newBrightness);
+                  },
+
+                ),
+                Container(
+                  child: Text("Group ID:"),
+                ),
+
             Container(
-              child: Text("Light ID:"),
+              height:40,
+               child: ListView.builder(
+      scrollDirection: Axis.horizontal,
+      itemCount: grpID.length,
+      itemBuilder: (BuildContext context, int index) {
+      return Text(grpID[index].toString()+" ");
+      },
+
             ),
-          TextField(
-          controller: id,
-        ),
-            Container(
-              child: Text("Light state:"),
             ),
-            TextField(
-              controller: state,
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      flex: 3,
+                      child: TextField(
+                        controller: string_grpID,
+                      ),
+                    ),
+            Expanded(
+            flex: 1,
+                   child: RaisedButton(
+                     child: Text("Add Grp"),
+                      onPressed: (){
+                       int newgrpid=int.parse(string_grpID.text.toString());
+                       if(!grpID.contains(newgrpid)) grpID.add(newgrpid);
+                        setState(() { });
+                      },
+                    ),
             ),
-            Container(
-              child: Text("Light brightness:"),
-            ),
-            TextField(
-              controller: dim,
-            ),
-        ],
+                  ],
+                ),
+
+
+              ],
+            );
+          },
         ),
         actions: <Widget>[
           MaterialButton(
 
-            child: Text("Submit Room"),
+            child: Text("Submit Light"),
             onPressed: (){
               //todo: check if input is ok
               //todo: think how to add group items
-              if(lightid<0) { //only for edits
-                light.id = int.parse(id.text.toString());
+              if(lightid<0) { //only for create
+               //todo id gen does not work if items get deleted in the middle rework
+
+                light.id = room.lightList.length;
               }
               else{ light.id = lightid;}
-              light.state=int.parse(state.text.toString());
-              light.dim=int.parse(dim.text.toString());
+              light.state=state_int;
+              light.dim=brightness.toInt();
               light.grpId=[1,2];
               Navigator.of(context).pop(light);
             },
