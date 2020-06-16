@@ -28,115 +28,7 @@ class _HomePageState extends State<HomePage> {
 
   final HomePage home = new HomePage();
 
-  //gets data from url
-  Future<List<Room>> _getRooms() async {
-    print("hey");
-    final data = await http.get(home.getAPI()+"location");
-    print("downloaded");
-    //convert data
-    List<Room> rooms = parseRooms(data.body);
 
-    return rooms;
-  }
-
-  List<Room> parseRooms(String dataBody) {
-    final parsed = json.decode(dataBody).cast<Map<String, dynamic>>();
-
-    List<Room> rooms = parsed.map<Room>((json) => Room.fromJson(json)).toList();
-
-    return rooms;
-  }
-
-  Future<Null> createRoom(String roomname) async {
-    print("hey");
-    Room room = new Room();
-    room.roomname = roomname;
-    room.shutterList = List<ShutterList>();
-    room.lightList = List<LightList>();
-    final String requestBody = jsonEncode(room);
-    print("Body: " + requestBody);
-    final response = await http.post(home.getAPI()+"location",
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: requestBody
-      /*{
-      "roomname": roomname,
-        "shutterList": [],
-        "lightList": []
-    }*/
-    );
-    print("uploaded Status: " + response.statusCode.toString());
-    myRefresh();
-return null;
-  }
-
-  Future<Null> deleteRoom(String roomname) async{
-    http.delete(home.getAPI()+"location/"+roomname);
-    myRefresh();
-    return null;
-  }
-
-  Future<Null> editRoomname(String oldroomname,String newroomname) async {
-
-
-    final response = await http.put(home.getAPI()+"location/"+oldroomname,
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: '"'+newroomname+'"'
-    );
-    print("uploaded Status: " + response.statusCode.toString());
-    myRefresh();
-    return null;
-  }
-
-
-Future<String> createaddPopUp(BuildContext context)async{
-
-    TextEditingController myController = TextEditingController();
-
-    return showDialog(context: context,builder: (context){
-      return AlertDialog(
-        title: Text("Pls enter Roomname"),
-        content: TextField(
-          controller: myController,
-        ),
-        actions: <Widget>[
-          MaterialButton(
-            elevation: 5.0,
-            child: Text("Submit Room"),
-            onPressed: (){
-              Navigator.of(context).pop(myController.text.toString());
-            },
-          )
-        ],
-      );
-    });
-}
-
-  Future<String> createeditPopUp(BuildContext context)async{
-
-    TextEditingController myController = TextEditingController();
-
-    return showDialog(context: context,builder: (context){
-      return AlertDialog(
-        title: Text("Pls enter new Roomname"),
-        content: TextField(
-          controller: myController,
-        ),
-        actions: <Widget>[
-          MaterialButton(
-            elevation: 5.0,
-            child: Text("Submit name"),
-            onPressed: (){
-              Navigator.of(context).pop(myController.text.toString());
-            },
-          )
-        ],
-      );
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -231,6 +123,116 @@ Future<String> createaddPopUp(BuildContext context)async{
         ),
       ),
     );
+  }
+
+  //gets data from url
+  Future<List<Room>> _getRooms() async {
+    print("hey");
+    final data = await http.get(home.getAPI()+"location");
+    print("downloaded");
+    //convert data
+    List<Room> rooms = parseRooms(data.body);
+
+    return rooms;
+  }
+
+  List<Room> parseRooms(String dataBody) {
+    final parsed = json.decode(dataBody).cast<Map<String, dynamic>>();
+
+    List<Room> rooms = parsed.map<Room>((json) => Room.fromJson(json)).toList();
+
+    return rooms;
+  }
+
+  Future<Null> createRoom(String roomname) async {
+    print("hey");
+    Room room = new Room();
+    room.roomname = roomname;
+    room.shutterList = List<ShutterList>();
+    room.lightList = List<LightList>();
+    final String requestBody = jsonEncode(room);
+    print("Body: " + requestBody);
+    final response = await http.post(home.getAPI()+"location",
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: requestBody
+      /*{
+      "roomname": roomname,
+        "shutterList": [],
+        "lightList": []
+    }*/
+    );
+    print("uploaded Status: " + response.statusCode.toString());
+    myRefresh();
+    return null;
+  }
+
+  Future<Null> deleteRoom(String roomname) async{
+    http.delete(home.getAPI()+"location/"+roomname);
+    myRefresh();
+    return null;
+  }
+
+  Future<Null> editRoomname(String oldroomname,String newroomname) async {
+
+
+    final response = await http.put(home.getAPI()+"location/"+oldroomname,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: '"'+newroomname+'"'
+    );
+    print("uploaded Status: " + response.statusCode.toString());
+    myRefresh();
+    return null;
+  }
+
+
+  Future<String> createaddPopUp(BuildContext context)async{
+
+    TextEditingController myController = TextEditingController();
+
+    return showDialog(context: context,builder: (context){
+      return AlertDialog(
+        title: Text("Pls enter Roomname"),
+        content: TextField(
+          controller: myController,
+        ),
+        actions: <Widget>[
+          MaterialButton(
+            elevation: 5.0,
+            child: Text("Submit Room"),
+            onPressed: (){
+              Navigator.of(context).pop(myController.text.toString());
+            },
+          )
+        ],
+      );
+    });
+  }
+
+  Future<String> createeditPopUp(BuildContext context)async{
+
+    TextEditingController myController = TextEditingController();
+
+    return showDialog(context: context,builder: (context){
+      return AlertDialog(
+        title: Text("Pls enter new Roomname"),
+        content: TextField(
+          controller: myController,
+        ),
+        actions: <Widget>[
+          MaterialButton(
+            elevation: 5.0,
+            child: Text("Submit name"),
+            onPressed: (){
+              Navigator.of(context).pop(myController.text.toString());
+            },
+          )
+        ],
+      );
+    });
   }
 
    Future<Null> myRefresh() async {

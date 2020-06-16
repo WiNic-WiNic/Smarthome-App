@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-//import '../klassen.dart';
 import '../autoClassgenerator.dart';
 import 'home.dart';
 
@@ -246,7 +245,7 @@ LightList demoLightInit(){
     int state_int;
     double brightness=50;
 
-    List<int> grpID=[1,2,3,4];
+    List<int> grpID=[];
 
     LightList light = new LightList();
 
@@ -292,7 +291,7 @@ LightList demoLightInit(){
                 ),
 
                 Container(
-                  child: Text("Light brightness: "+ brightness.toInt().toString()),
+                  child: Text("Light brightness: "+ brightness.toInt().toString()+"%"),
                 ),
                 Slider(
                   //todo: does not update
@@ -300,7 +299,6 @@ LightList demoLightInit(){
                   min: 0,
                   max: 100,
                   divisions:100,
-                  label: brightness.toInt().toString(),
                   onChanged: (newBrightness){
                     setState(()=>brightness = newBrightness);
                   },
@@ -316,7 +314,19 @@ LightList demoLightInit(){
       scrollDirection: Axis.horizontal,
       itemCount: grpID.length,
       itemBuilder: (BuildContext context, int index) {
-      return Text(grpID[index].toString()+" ");
+      return ButtonTheme(
+        minWidth: 40,
+        height: 40,
+        child: RaisedButton(
+            child: Text(grpID[index].toString()+" "),
+            onPressed: (){
+              grpID.removeAt(index);
+              setState(() {
+
+              });
+            },
+          ),
+      );//
       },
 
             ),
@@ -353,17 +363,16 @@ LightList demoLightInit(){
 
             child: Text("Submit Light"),
             onPressed: (){
-              //todo: check if input is ok
-              //todo: think how to add group items
+              //todo: check if group input is ok
               if(lightid<0) { //only for create
-               //todo id gen does not work if items get deleted in the middle rework
-
-                light.id = room.lightList.length;
+                for(int i=0;i<=room.lightList.length;i++){
+                  if(!room.lightList.contains(i))  light.id = i;
+                }
               }
               else{ light.id = lightid;}
               light.state=state_int;
               light.dim=brightness.toInt();
-              light.grpId=[1,2];
+              light.grpId=grpID;
               Navigator.of(context).pop(light);
             },
           )

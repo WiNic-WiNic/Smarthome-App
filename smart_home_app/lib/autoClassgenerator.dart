@@ -83,3 +83,38 @@ class ShutterList {
     "block": block,
   };
 }
+
+
+
+
+List<Group> groupFromJson(String str) => List<Group>.from(json.decode(str).map((x) => Group.fromJson(x)));
+
+String groupToJson(List<Group> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+
+class Group {
+  Group({
+    this.name,
+    this.id,
+    this.state,
+    this.dim,
+  });
+
+  String name;
+  int id;
+  int state;
+  int dim;
+
+  factory Group.fromJson(Map<String, dynamic> json) => Group(
+    name: json["name"],
+    id: json["id"],
+    state: json["state"],
+    dim: json["dim"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "name": name,
+    "id": id,
+    "state": state,
+    "dim": dim,
+  };
+}
