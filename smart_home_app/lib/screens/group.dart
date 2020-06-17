@@ -50,7 +50,7 @@ class _GroupPage extends State<GroupPage> {
                         itemCount: snapshot.data.length,
                         itemBuilder: (BuildContext context, int index) {
                           return ListTile(
-                            title: Text(snapshot.data[index].name),
+                            title: Text(snapshot.data[index].name +" (has id: "+snapshot.data[index].id.toString()+")"),
                             subtitle: Text("Lights will be dimmed to: "+snapshot.data[index].dim.toString()+"%"),
                             leading: Icon(
                               Icons.check_box,

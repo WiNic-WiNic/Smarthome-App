@@ -203,7 +203,7 @@ class _RoomPageState extends State<RoomPage> {
    refreshLights();
     return null;
   }
-//todo: only change brightness and groupids
+
   Future<Null> editLight(LightList light) async {
     print("inside create light");
     final String requestBody = jsonEncode(light);
@@ -323,7 +323,6 @@ LightList demoLightInit(){
                   child: Text("Light brightness: "+ brightness.toInt().toString()+"%"),
                 ),
                 Slider(
-                  //todo: does not update
                   value: brightness,
                   min: 0,
                   max: 100,
@@ -347,12 +346,10 @@ LightList demoLightInit(){
         minWidth: 40,
         height: 40,
         child: RaisedButton(
-            child: Text(grpID[index].toString()+" "),
+            child: Text(grpID[index].toString()),
             onPressed: (){
               grpID.removeAt(index);
-              setState(() {
-
-              });
+              setState(() {});
             },
           ),
       );//
@@ -393,7 +390,7 @@ LightList demoLightInit(){
             child: Text("Submit Light"),
             onPressed: (){
               //todo: check if group input is ok
-              if(getLight.id<0) { //only for create
+              if(getLight.id==null) { //only for create
                 for(int i=0;i<=room.lightList.length;i++){
                   if(!room.lightList.contains(i))  light.id = i;
                 }
@@ -402,6 +399,7 @@ LightList demoLightInit(){
               light.state=state_int;
               light.dim=brightness.toInt();
               light.grpId=grpID;
+              print(grpID.join(", "));
               Navigator.of(context).pop(light);
             },
           )
