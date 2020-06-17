@@ -184,7 +184,7 @@ class _RoomPageState extends State<RoomPage> {
   Future<Null> deleteLight(int lightID) async {
     print("inside delete light");
  final response = await http.delete(home.getAPI()+"light/"+room.roomname+"/"+lightID.toString());
-    print("uploaded Status: " + response.statusCode.toString());
+    print("deleted Status: " + response.statusCode.toString());
     refreshLights();
     return null;
   }
@@ -372,6 +372,7 @@ LightList demoLightInit(){
                       onPressed: (){
                        int newgrpid=int.parse(string_grpID.text.toString());
                        if(!grpID.contains(newgrpid)) grpID.add(newgrpid);
+                       string_grpID.clear();
                         setState(() { });
                       },
                     ),

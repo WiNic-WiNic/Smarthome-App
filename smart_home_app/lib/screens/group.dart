@@ -21,6 +21,11 @@ class _GroupPage extends State<GroupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.add_to_photos),
+          onPressed: (){
+        print("added Group");
+      }),
       appBar: AppBar(
         title: Text("Group Page"),
       ),
@@ -68,18 +73,15 @@ class _GroupPage extends State<GroupPage> {
                                 IconButton(
                                   icon: Icon(Icons.delete),
                                   onPressed: (){
+                                    deleteGroup(snapshot.data[index].name);
                                     print("deleted");
                                   },
                                 ),
                               ],
                             ),
-                            onTap: () {/*
-                              Navigator.push(
-                                  context,
-                                  new MaterialPageRoute(
-                                      builder: (context) =>
-                                          RoomPage(snapshot.data[index])));
-                            */},
+                            onTap: () {
+                              onTapGroup(snapshot.data[index]);
+                            },
                           );
                         },
                       ),
@@ -111,6 +113,29 @@ class _GroupPage extends State<GroupPage> {
       List<Group> groups = parsed.map<Group>((json) => Group.fromJson(json)).toList();
       return groups;
     }
+
+  Future<Null> onTapGroup(Group group) async {
+   String state;
+    if(group.state==1) {
+      group.state=0;
+      state="OFF";
+    }
+    else{
+      group.state=1;
+      state="ON";
+    }
+    final data = await http.put(home.getAPI()+"group/"+group.id.toString()+"/"+state);
+    myRefresh();
+    return null;
+  }
+
+  Future<Null> deleteGroup(String groupID) async {
+    print("inside delete group");
+    final response = await http.delete(home.getAPI()+"group/"+groupID);
+    print("deleted Status: " + response.statusCode.toString());
+    myRefresh();
+    return null;
+  }
 
 Color checkColor(int c){
     if(c==1) return Colors.greenAccent;
