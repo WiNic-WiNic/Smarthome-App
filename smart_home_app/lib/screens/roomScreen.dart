@@ -47,7 +47,7 @@ class _RoomPageState extends State<RoomPage> {
               label: 'Add Light',
               labelStyle: TextStyle(fontSize: 18.0),
               onTap: () async {
-                createLightPopUp(context,-1).then((lightItem){
+                createLightPopUp(context,new LightList()).then((lightItem){
                 if(lightItem !=null) {
                   createLight(lightItem);
                 }
@@ -97,7 +97,7 @@ class _RoomPageState extends State<RoomPage> {
                        IconButton(
                          icon: Icon(Icons.edit),
                          onPressed: (){
-                           createLightPopUp(context,room.lightList[index].id).then((lightItem){
+                           createLightPopUp(context,room.lightList[index]).then((lightItem){
                              if(lightItem !=null) {
                                editLight(lightItem);
                              }
@@ -236,18 +236,47 @@ LightList demoLightInit(){
       return light;
 }
 
+
+
+
+
 //gives light item back
-  Future<LightList> createLightPopUp(BuildContext context,int lightid)async{
+  Future<LightList> createLightPopUp(BuildContext context,LightList getLight)async{
+
+
 
     TextEditingController string_grpID = TextEditingController();
-    List<bool> _selections = List.generate(1, (_) => false);
-    String state="OFF";
+    List<bool> _selections =  List.generate(1, (_) => false);
+    String state="";
     int state_int;
-    double brightness=50;
+    double brightness;
 
-    List<int> grpID=[];
+    List<int> grpID;
 
     LightList light = new LightList();
+
+    if(getLight.id==null){
+      //init light with default
+    state="OFF";
+    brightness=50;
+    state_int=0;
+    grpID=[];
+    }
+    else {
+      //init light with old param
+      if(getLight.state==1){
+    _selections = List.generate(1, (_) => true);
+    state="ON";
+      }
+      else {
+        _selections = List.generate(1, (_) => false);
+        state="OFF";
+      }
+
+      brightness=getLight.dim.toDouble();
+      state_int=getLight.state;
+      grpID=getLight.grpId;
+    }
 
     return showDialog(context: context,builder: (context){
       return AlertDialog(
@@ -285,7 +314,7 @@ LightList demoLightInit(){
                       selectedColor: Colors.amber,
                     ),
                     Container(
-                      child: Text(state),
+                      child: Text(" "+state),
                     )
                   ],
                 ),
@@ -364,12 +393,12 @@ LightList demoLightInit(){
             child: Text("Submit Light"),
             onPressed: (){
               //todo: check if group input is ok
-              if(lightid<0) { //only for create
+              if(getLight.id<0) { //only for create
                 for(int i=0;i<=room.lightList.length;i++){
                   if(!room.lightList.contains(i))  light.id = i;
                 }
               }
-              else{ light.id = lightid;}
+              else{ light.id = getLight.id;}
               light.state=state_int;
               light.dim=brightness.toInt();
               light.grpId=grpID;
