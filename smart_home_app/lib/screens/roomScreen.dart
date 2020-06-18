@@ -227,18 +227,6 @@ class _RoomPageState extends State<RoomPage> {
   }
 
 
-LightList demoLightInit(){
-      LightList light =new LightList();
-      light.id=12;
-      light.state=1;
-      light.dim=98;
-      light.grpId=[1,2,3,4,5];
-      return light;
-}
-
-
-
-
 
 //gives light item back
   Future<LightList> createLightPopUp(BuildContext context,LightList getLight)async{

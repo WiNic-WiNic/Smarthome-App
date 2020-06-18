@@ -16,7 +16,8 @@ class GroupPage extends StatefulWidget {
 class _GroupPage extends State<GroupPage> {
 
   final HomePage home = new HomePage();
-
+//todo delete if uid is generated in rest
+  List<Group> groups = null;
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +25,11 @@ class _GroupPage extends State<GroupPage> {
       floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add_to_photos),
           onPressed: (){
+            createGroupPopUp(context, new Group()).then((groupItem){
+              if(groupItem !=null) {
+                createGroup(groupItem);
+              }
+            });
         print("added Group");
       }),
       appBar: AppBar(
@@ -33,6 +39,8 @@ class _GroupPage extends State<GroupPage> {
         child: FutureBuilder(
           future: _getGroups(),
           builder: (BuildContext context, AsyncSnapshot snapshot) {
+            //todo delete if uid is generated in rest
+            groups=snapshot.data;
             //asyncsnapshot gives the data when future happens
             switch (snapshot.connectionState) {
               case ConnectionState.none:
@@ -55,8 +63,8 @@ class _GroupPage extends State<GroupPage> {
                         itemCount: snapshot.data.length,
                         itemBuilder: (BuildContext context, int index) {
                           return ListTile(
-                            title: Text(snapshot.data[index].name +" (has id: "+snapshot.data[index].id.toString()+")"),
-                            subtitle: Text("Lights will be dimmed to: "+snapshot.data[index].dim.toString()+"%"),
+                            title: Text("(ID: "+snapshot.data[index].id.toString()+") " + snapshot.data[index].name),
+                            subtitle: Text("Lights will have brightness of: "+snapshot.data[index].dim.toString()+"%"),
                             leading: Icon(
                               Icons.check_box,
                             color: checkColor(snapshot.data[index].state),
@@ -66,9 +74,17 @@ class _GroupPage extends State<GroupPage> {
                               children: <Widget>[
                                 IconButton(
                                   icon: Icon(Icons.edit),
-                                  onPressed: (){print("edited");
-                                  },
-                                ),
+                                  onPressed: () {
+                                    createGroupPopUp(
+                                        context, snapshot.data[index]).then((
+                                        groupItem) {
+                                      if (groupItem != null) {
+                                        editGroup(groupItem);
+                                      }
+                                      print("edited");
+                                    });
+
+                                  }),
 
                                 IconButton(
                                   icon: Icon(Icons.delete),
@@ -114,6 +130,36 @@ class _GroupPage extends State<GroupPage> {
       return groups;
     }
 
+  Future<Null> createGroup(Group group) async {
+    print("inside create group");
+    final String requestBody = jsonEncode(group);
+    print("Body: " + requestBody);
+    final response = await http.post(home.getAPI()+"group/",
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: requestBody
+    );
+    print("uploaded Status: " + response.statusCode.toString());
+    myRefresh();
+    return null;
+  }
+
+  Future<Null> editGroup(Group group) async {
+    print("inside create light");
+    final String requestBody = jsonEncode(group);
+    print("Body: " + requestBody);
+    final response = await http.put(home.getAPI()+"group/"+group.name,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: requestBody
+    );
+    print("uploaded Status: " + response.statusCode.toString());
+    myRefresh();
+    return null;
+  }
+
   Future<Null> onTapGroup(Group group) async {
    String state;
     if(group.state==1) {
@@ -136,6 +182,76 @@ class _GroupPage extends State<GroupPage> {
     myRefresh();
     return null;
   }
+
+  Future<Group> createGroupPopUp(BuildContext context,Group getGroup)async{
+
+    TextEditingController string_grpName = TextEditingController();
+    double brightness;
+
+    //inits for create new group
+    if(getGroup.id==null){
+      brightness=50;
+    }
+    //edit existing group
+    else{
+      brightness=getGroup.dim.toDouble();
+    }
+
+
+
+    return showDialog(context: context,builder: (context){
+      return AlertDialog(
+        title: Text("Pls enter Group "),
+        content: StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState){
+            return ListView(
+              children: <Widget>[
+               Container(
+                child: Text("Enter Group Name:"),
+               ),
+                TextField(
+                  controller: string_grpName,
+                ),
+                Container(
+                  child: Text("Brightness for Group: "+brightness.toInt().toString()+"%"),
+                ),
+                Slider(
+                  value: brightness,
+                  min: 0,
+                  max: 100,
+                  divisions:100,
+                  onChanged: (newBrightness){
+                    setState(()=>brightness = newBrightness);
+                  },
+
+                ),
+              ],
+            );
+          },
+        ),
+        actions: <Widget>[
+          MaterialButton(
+
+            child: Text("Submit Group"),
+            onPressed: (){
+              //default
+              getGroup.state=0;
+              //init with unique id //todo delete if uid is generated in rest
+              if(getGroup.id==null) { //only for create
+                 if(groups!=null) getGroup.id = groups.length;
+              }
+              else{ getGroup.id = getGroup.id;}
+              //set in this call
+              getGroup.name=string_grpName.text.toString();
+              getGroup.dim=brightness.toInt();
+              Navigator.of(context).pop(getGroup);
+            },
+          )
+        ],
+      );
+    });
+  }
+
 
 Color checkColor(int c){
     if(c==1) return Colors.greenAccent;
