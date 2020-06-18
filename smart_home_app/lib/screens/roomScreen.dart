@@ -31,6 +31,7 @@ class _RoomPageState extends State<RoomPage> {
 
     Widget build(BuildContext context) {
     return Scaffold(
+      ///Speed Dial
       floatingActionButton: SpeedDial(
         animatedIcon: AnimatedIcons.menu_close,
         children: [
@@ -39,7 +40,15 @@ class _RoomPageState extends State<RoomPage> {
             backgroundColor: Colors.blueGrey,
             label: 'Add Shutter',
             labelStyle: TextStyle(fontSize: 18.0),
-            onTap: () => print('Shutter added'),
+            onTap: () {
+              createShutterPopUp(context, new ShutterList()).then((shutterItem){
+                if(shutterItem !=null) {
+                  createShutter(shutterItem);
+                  refreshShutter();
+                }
+              });
+              print('Shutter added');
+              },
           ),
           SpeedDialChild(
               child: Icon(Icons.lightbulb_outline),
@@ -64,13 +73,14 @@ class _RoomPageState extends State<RoomPage> {
 
         child: Column(
           children: [
+
+
             Container(
               child: Text("Lights:",
           style: TextStyle(fontSize: 20),
         ),
       ),
-
-
+            ///Light ListView Start
             Flexible(
 
              child: RefreshIndicator(child:   ListView.builder(
@@ -121,35 +131,58 @@ class _RoomPageState extends State<RoomPage> {
       ),
 
             Container(
-              child: Text("Shutters:"),
+              child: Text("Shutters:",
+                style: TextStyle(fontSize: 20),
+              ),
             ),
+            ///Shutter ListView Start
             Flexible(
-            child: ListView.builder(
+            child: RefreshIndicator(child: ListView.builder(
               itemCount: room.shutterList.length,
               itemBuilder: (BuildContext context, int index){
+                IconData _icon;
+                if(room.shutterList[index].pos>0){
+                  _icon = Icons.border_all;
+                }
+                else{
+                  _icon = Icons.border_top;
+                }
                 return ListTile(
                   title: Text("Shutter "+room.shutterList[index].id.toString()),
-                  subtitle: Text("Light Test"),
-                  onTap: (){
-
-                  },
+                  subtitle: Text("Shutter position: "+room.shutterList[index].pos.toString()),
+                  dense: true,
+                  leading:  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      IconButton(
+                        icon: Icon(Icons.keyboard_arrow_up),
+                        onPressed: (){
+                          onTapShutter(room.shutterList[index], "UP");
+                        },
+                      ),
+                      Icon(_icon),
+                      IconButton(
+                        icon: Icon(Icons.keyboard_arrow_down),
+                        onPressed: (){
+                          onTapShutter(room.shutterList[index], "DOWN");
+                        },
+                      ),
+                    ],),// //todo: change icons for visible effect
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       IconButton(
-                        icon: Icon(Icons.edit),
-                        onPressed: (){},
-                      ),
-
-                      IconButton(
                         icon: Icon(Icons.delete),
-                        onPressed: (){},
+                        onPressed: (){
+                          deleteShutter(room.shutterList[index].id);
+                        },
                       ),
                     ],
                   ),
                 );
               },
             ),
+                onRefresh: refreshShutter)
             ),
           ],
 
@@ -157,6 +190,8 @@ class _RoomPageState extends State<RoomPage> {
       ),
     );
   }
+
+  ///Light Functions Start:
 
   Future<List<LightList>> _getLights(Room room) async {
     print("hey");
@@ -225,10 +260,7 @@ class _RoomPageState extends State<RoomPage> {
       editLight(light);
       return null;
   }
-
-
-
-//gives light item back
+//gives light item back with user input
   Future<LightList> createLightPopUp(BuildContext context,LightList getLight)async{
 
 
@@ -397,11 +429,6 @@ class _RoomPageState extends State<RoomPage> {
     });
   }
 
-
-
-
-
-
   String checkState(LightList light){
     if(light.state==1) {
       _iconColor= Colors.amber;
@@ -412,5 +439,117 @@ class _RoomPageState extends State<RoomPage> {
       return "OFF";
     }
 
+  }
+
+  ///Light Functions End:
+
+  ///Shutter Functions Start:
+
+  Future<List<ShutterList>> _getShutter(Room room) async {
+    print("hey");
+    final data = await http.get(home.getAPI()+"location/"+room.roomname);
+    print("downloaded shutter");
+    //convert data
+    List<ShutterList> shutter = parseShutter(data.body);
+
+    return shutter;
+  }
+
+  List<ShutterList> parseShutter(String dataBody) {
+    final parsed = json.decode(dataBody);
+    Room room = Room.fromJson(parsed);
+    List<ShutterList> shutter = room.shutterList;
+    return shutter;
+  }
+
+  Future<Null> refreshShutter() async {
+    room.shutterList = await _getShutter(room);
+    setState(() {});
+  }
+
+  Future<Null> createShutter(ShutterList shutter) async {
+    print("inside create Shutter");
+    final String requestBody = jsonEncode(shutter);
+    print("Body: " + requestBody);
+    final response = await http.put(home.getAPI()+"shutter/"+room.roomname,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: requestBody
+    );
+    print("uploaded Status: " + response.statusCode.toString());
+    refreshShutter();
+    return null;
+  }
+
+  Future<Null> deleteShutter(int shutterID) async {
+    print("inside delete light");
+    final response = await http.delete(home.getAPI()+"shutter/"+room.roomname+"/"+shutterID.toString());
+    print("deleted Status: " + response.statusCode.toString());
+    refreshShutter();
+    return null;
+  }
+
+  Future<Null> onTapShutter(ShutterList shutter,String state) async {
+    final response = await http.put(home.getAPI()+"shutter/"+room.roomname+"/"+shutter.id.toString()+"/"+state);
+    print("uploaded Status: " + response.statusCode.toString());
+    refreshShutter();
+    return null;
+  }
+
+  Future<ShutterList> createShutterPopUp(BuildContext context,ShutterList getShutter)async{
+
+    double position;
+
+    if(getShutter.id==null){
+      //todo: init shutter with uid (should happen in rest)
+      getShutter.id = room.shutterList.length;
+      getShutter.block=0;
+      //init light with default (create)
+    position=0;
+    }
+    else {
+      ///maybe not editable
+      //init light with old param (edit)
+    position=getShutter.pos.toDouble();
+    }
+
+    return showDialog(context: context,builder: (context){
+      return AlertDialog(
+        title: Text("Pls enter Shutter "),
+        content: StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState){
+            return ListView(
+              //mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Container(
+                  child: Text("Shutter Position: "+position.toInt().toString()+"%"),
+                ),
+                Slider(
+                  value: position,
+                  min: 0,
+                  max: 100,
+                  divisions:100,
+                  onChanged: (newposition){
+                    setState(()=>position = newposition);
+                  },
+
+                ),
+              ],
+            );
+          },
+        ),
+        actions: <Widget>[
+          MaterialButton(
+
+            child: Text("Submit Shutter"),
+            onPressed: (){
+              getShutter.pos=position.toInt();
+              Navigator.of(context).pop(getShutter);
+            },
+          )
+        ],
+      );
+    });
   }
 }
