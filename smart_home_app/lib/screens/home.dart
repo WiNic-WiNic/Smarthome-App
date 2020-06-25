@@ -69,7 +69,9 @@ class _HomePageState extends State<HomePage> {
                       child: ListView.builder(
                         itemCount: snapshot.data.length,
                         itemBuilder: (BuildContext context, int index) {
-                          return ListTile(
+                          return Card(
+                              color: Colors.white70,
+                              child:ListTile(
                             title: Text(snapshot.data[index].roomname),
                             subtitle: Text("Lights: " +
                                 snapshot.data[index].lightList.length
@@ -109,6 +111,7 @@ class _HomePageState extends State<HomePage> {
                                       builder: (context) =>
                                           RoomPage(snapshot.data[index])));
                             },
+                              ),
                           );
                         },
                       ),

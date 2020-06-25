@@ -62,7 +62,9 @@ class _GroupPage extends State<GroupPage> {
                       child: ListView.builder(
                         itemCount: snapshot.data.length,
                         itemBuilder: (BuildContext context, int index) {
-                          return ListTile(
+                          return Card(
+                              color: Colors.white70,
+                              child:ListTile(
                             title: Text("(ID: "+snapshot.data[index].id.toString()+") " + snapshot.data[index].name),
                             subtitle: Text("Lights will have brightness of: "+snapshot.data[index].dim.toString()+"%"),
                             leading: Icon(
@@ -98,6 +100,7 @@ class _GroupPage extends State<GroupPage> {
                             onTap: () {
                               onTapGroup(snapshot.data[index]);
                             },
+                              ),
                           );
                         },
                       ),

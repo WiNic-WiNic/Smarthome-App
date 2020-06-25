@@ -87,43 +87,46 @@ class _RoomPageState extends State<RoomPage> {
                itemCount: room.lightList.length,
                itemBuilder: (BuildContext context, int index){
                  String allGrpIDs = room.lightList[index].grpId.join(", ");
-                 return ListTile(
-                   title: Text("Light "+room.lightList[index].id.toString()),
-                   subtitle: Text("Light is "+checkState(room.lightList[index])+
-                       "\n Group IDs: "+allGrpIDs),
-                   isThreeLine: true,
-                   dense: true,
-                   leading: Icon(
-                     Icons.lightbulb_outline,
-                     color:  _iconColor,
-                   ),
-                   onTap: (){
-                     onTapLight(room.lightList[index]);
-                     print(checkState(room.lightList[index]));
-                   },
-                   trailing: Row(
-                     mainAxisSize: MainAxisSize.min,
-                     children: <Widget>[
-                       IconButton(
-                         icon: Icon(Icons.edit),
-                         onPressed: (){
-                           createLightPopUp(context,room.lightList[index]).then((lightItem){
-                             if(lightItem !=null) {
-                               editLight(lightItem);
-                             }
-                           });
-                         },
+                 return Card(
+                   color: Colors.white70,
+                     child: ListTile(
+                       title: Text("Light "+room.lightList[index].id.toString()),
+                       subtitle: Text("Light is "+checkState(room.lightList[index])+
+                           "\n Group IDs: "+allGrpIDs),
+                       isThreeLine: true,
+                       dense: true,
+                       leading: Icon(
+                         Icons.lightbulb_outline,
+                         color:  _iconColor,
+                       ),
+                       onTap: (){
+                         onTapLight(room.lightList[index]);
+                         print(checkState(room.lightList[index]));
+                       },
+                       trailing: Row(
+                         mainAxisSize: MainAxisSize.min,
+                         children: <Widget>[
+                           IconButton(
+                             icon: Icon(Icons.edit),
+                             onPressed: (){
+                               createLightPopUp(context,room.lightList[index]).then((lightItem){
+                                 if(lightItem !=null) {
+                                   editLight(lightItem);
+                                 }
+                               });
+                             },
+                           ),
+
+                           IconButton(
+                             icon: Icon(Icons.delete),
+                             onPressed: (){
+                               deleteLight(room.lightList[index].id);
+                             },
+                           ),
+                         ],
                        ),
 
-                       IconButton(
-                         icon: Icon(Icons.delete),
-                         onPressed: (){
-                           deleteLight(room.lightList[index].id);
-                         },
-                       ),
-                     ],
-                   ),
-
+                     ),
                  );
                },
              ),
@@ -147,7 +150,9 @@ class _RoomPageState extends State<RoomPage> {
                 else{
                   _icon = Icons.border_top;
                 }
-                return ListTile(
+                return Card(
+                    color: Colors.white70,
+                    child:ListTile(
                   title: Text("Shutter "+room.shutterList[index].id.toString()),
                   subtitle: Text("Shutter position: "+room.shutterList[index].pos.toString()),
                   dense: true,
@@ -179,6 +184,7 @@ class _RoomPageState extends State<RoomPage> {
                       ),
                     ],
                   ),
+                    ),
                 );
               },
             ),
