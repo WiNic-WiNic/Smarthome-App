@@ -10,9 +10,6 @@ import 'package:xml/xml.dart' as xml;
 class WeatherPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-          onPressed: (){ }
-          ),
       appBar: AppBar(
         title: Text("Weather Page"),
       ),
@@ -59,16 +56,14 @@ class WeatherPage extends StatelessWidget {
                       else{
                         return
                           Container(
-                            child: ListView.builder(
-                              scrollDirection: Axis.vertical,
-                              shrinkWrap: true,
-                            itemCount: snapshot.data.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              return ListTile(
-                                  title: Text(snapshot.data[index]),
-                                );
-                            },
-                          ),
+                            child: Column(
+                                children: <Widget>[
+                                  Text("Windspeed is: "+snapshot.data[0]),
+                                  Text("Winddirection is: "+snapshot.data[1])
+                                ],
+
+                                ),
+
 
                           );
                       }
@@ -80,7 +75,7 @@ class WeatherPage extends StatelessWidget {
             builder: (BuildContext context, AsyncSnapshot snapshot) {
               ConnectionState cs=snapshot.connectionState;
               if(cs==ConnectionState.active || cs==ConnectionState.waiting) {
-                return Container(
+                return Center(
                   child: Text("Loading XML..."),
                 );
               }
